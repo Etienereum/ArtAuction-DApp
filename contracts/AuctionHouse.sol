@@ -1,16 +1,18 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.8;
 
 import 'zeppelin-solidity/contracts/math/SafeMath.sol';
 
-contract AuctionHouse{
+contract AuctionBox {
 
     Auction[] public auctions;
 
-    function createAuction (string memory _title, uint _startPrice, string memory _description) public{
-
+    function createAuction (
+        string memory _title,
+        uint _startPrice,
+        string memory _description
+        ) public{
         // set the new instance
         Auction newAuction = new Auction(msg.sender, _title, _startPrice, _description);
-
         // push the auction address to auctions array
         auctions.push(newAuction);
     }
@@ -58,7 +60,7 @@ contract Auction {
     }
 
     modifier notOwner(){
-        require(msg.sender != owner, error);
+        require(msg.sender != owner);
         _;
     }
 
@@ -66,12 +68,12 @@ contract Auction {
       * @return true
       */
     function placeBid() public payable notOwner returns(bool) {
-        require(auctionState == State.Running, error);
-        require(msg.value > 0, error);
+        require(auctionState == State.Running);
+        require(msg.value > 0);
         // update the current bid
         // uint currentBid = bids[msg.sender] + msg.value;
         uint currentBid = bids[msg.sender].add(msg.value);
-        require(currentBid > highestPrice, error);
+        require(currentBid > highestPrice);
         // set the currentBid links with msg.sender
         bids[msg.sender] = currentBid;
         // update the highest price
@@ -83,7 +85,7 @@ contract Auction {
 
     function finalizeAuction() public{
         //the owner and bidders can finalize the auction.
-        require(msg.sender == owner || bids[msg.sender] > 0, error);
+        require(msg.sender == owner || bids[msg.sender] > 0);
 
         address payable recipiant;
         uint value;
@@ -115,8 +117,12 @@ contract Auction {
       * @return the description of the auction
       * @return the state of the auction
       */
-    function returnContents() public view returns(string memory, uint, string memory, State) {
-
+    function returnContents() public view returns(
+        string memory,
+        uint,
+        string memory,
+        State
+        ) {
         return (
             title,
             startPrice,
